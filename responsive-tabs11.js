@@ -10,7 +10,6 @@
 			tabSelector: '.tab-pane',
 			activeClassName: 'active'
 		};
-	
 	var Plugin = function (el, options) {
 		var $tabs = this.$tabs = $(el);
 		this.options = options = $.extend(true, {}, defaults, options);

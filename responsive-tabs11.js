@@ -116,19 +116,20 @@
 			} else {
 				if (i === this.breakpoints.length) {
 					this.$items.show();
-					this.$dropdown.find("ul>li").remove();
+					this.$dropdown.find("ul>li:not(li:last)").remove();
 					this.$items.eq(panelIndex).addClass(activeClassName);
 				} else {
 					this.$dropdown.removeClass("hidden");
-					this.$dropdown.find("ul>li").remove();
+					this.$dropdown.find("ul>li:not(li:last)").remove();
 					for (var j = 0; j < this.itemsLenth + 1; j++) {
 						if (j < i) {
 							this.$items.eq(j).show();
 						} else {
 							var v = i;
 							if (i === this.itemsLenth) v = i-1;
+							console.log(v);
 							for (; v < this.itemsLenth; v++) {
-								this.$dropdown.find("ul").append(this.$items.eq(v).prop("outerHTML"));
+								this.$dropdown.find("ul>li:last").before(this.$items.eq(v).prop("outerHTML"));
 								this.$items.eq(v).hide();
 							}
 							this.$dropdown.find("ul>li").show();

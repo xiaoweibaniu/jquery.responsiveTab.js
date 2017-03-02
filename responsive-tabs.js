@@ -66,16 +66,17 @@
 			}
 			this.layout();
 		},
-		
 		layout: function () {
 			console.log(this.breakpoints);
 			if (this.breakpoints.length <= 0) return;
 			
-			var width = this.$nav.width(),
+			var width = this.$tabs.width(),
 				i = 0,
 				activeClassName = this.options.activeClassName,
 				panelIndex = this.$tabPanel.filter('.' + activeClassName).index();
 			
+			panelIndex = panelIndex < 0 ? 0 : panelIndex;
+			console.log(this.$tabs);
 			for (; i < this.breakpoints.length; i++) {   //有一个宽度大于导航条的宽度
 				if (this.breakpoints[i] > width) break;
 			}
@@ -172,7 +173,6 @@
 				}, interval || 500);
 			}
 		},
-		
 		bind: function () {
 			var self = this;
 			
@@ -182,7 +182,6 @@
 				}, 1000)();
 			});
 		}
-		
 	};
 	
 	
@@ -204,6 +203,7 @@
 			return this.each(function () {
 				if (!$.data(this, pluginName)) {
 					$.data(this, pluginName, new Plugin(this, options));
+					if (typeof options === 'function') options();
 				} else {
 					$.data(this, pluginName).init();
 				}

@@ -28,10 +28,11 @@
 
         this.$dropdownItems = $dropdown.find(opts.dropdownItemSelector);
 
-        if (opts.tabParentSelector !== '')
+        if (opts.tabParentSelector !== ''){
             this.$tabPanel = $(opts.tabParentSelector).find(opts.tabSelector);
-        else
+        }else{
             this.$tabPanel = $tabs.find(opts.tabSelector);
+        }
 
 
         this.init();
@@ -43,14 +44,16 @@
         init: function () {
             var length = this.itemsLenth = this.$items.length, dropWidth;
 
-            if (length === 0) throw 'There should be some tags here ';
+            if (length === 0) {
+                throw 'There should be some tags here ';
+            }
 
             if (this.$dropdown.length === 0) { // 没有下拉菜单
                 this.flag = true;
 
                 this.$nav.append('<li class="dropdown" role="presentation">'
                     + '<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">'
-                    + '<span class="caret"></span>Menu </a><ul class="dropdown-menu" role="menu"></ul></li>');
+                    + '<span class="caret"></span> 更多</a><ul class="dropdown-menu" role="menu"></ul></li>');
 
                 this.$dropdown = this.$nav.find(this.options.dropdownSelector);
                 this.$dropdown.css("opacity", 0); // 还需要将其隐藏起来
@@ -81,21 +84,58 @@
                 this.breakpoints.push(widthLevel);
             }
 
-            if (typeof this.options.fnCallback === 'function') this.options.fnCallback(this.$tabs);
+            if (typeof this.options.fnCallback === 'function') {
+                this.options.fnCallback(this.$tabs);
+            }
 
             this.layout();
-            if (this.options.closeNav) this.close();
+            if (this.options.closeNav) {
+                this.close();
+            }
         },
         layout: function () {
-            if (this.breakpoints.length <= 0) return;
+            if (this.breakpoints.length <= 0) {
+                return;
+            }
 
             var width = this.$tabs.width(),
                 i = 0,
+                self = this,
                 activeClassName = this.options.activeClassName,
-                panelIndex = this.$tabPanel.filter('.' + activeClassName).index();
+                panelIndex = this.$tabPanel.filter('.' + activeClassName).index(),
+                fn =function(i){
+                    var v = i;
+
+                    if (i === self.itemsLenth) {
+                        v = i - 1;
+                    }
+                    for (; v < self.itemsLenth; v++) {
+                        if(self.flag){
+                            self.$dropdown.find("ul").append(self.$items.eq(v).prop("outerHTML"));
+                        }else{
+                            self.$dropdown.find('ul>li'+self.options.noNavClassName+':first')
+                                .before(self.$items.eq(v).prop("outerHTML"));
+                        }
+
+                        self.$items.eq(v).hide();
+                    }
+                },
+                callback =function(i){
+                    for (var j = 0; j < self.itemsLenth + 1; j++) {
+                        if (j < i) {
+                            self.$items.eq(j).show();
+                        } else {
+                            fn(i);
+                            self.$dropdown.find("ul>li").show();
+                            break;
+                        }
+                    }
+                };
 
             for (; i < this.breakpoints.length; i++) { // 有一个宽度大于导航条的宽度
-                if (this.breakpoints[i] > width) break;
+                if (this.breakpoints[i] > width) {
+                    break;
+                }
             }
 
             this.$items.removeClass(activeClassName);
@@ -103,38 +143,22 @@
             this.$dropdown.removeClass(activeClassName);
 
             if (i === this.breakpoints.length) {
-                if(this.flag)
+                if(this.flag){
                     this.$dropdown.addClass("hidden");
-                else
+                }else{
                     this.$dropdown.find('ul>li:not(li'+this.options.noNavClassName+')').remove();
+                }
                 this.$items.show();
                 this.$items.eq(panelIndex).addClass(activeClassName);
             } else {
                 this.$dropdown.removeClass("hidden");
-                if(this.flag)
+                if(this.flag){
                     this.$dropdown.find("ul>li").remove();
-                else
+                }else{
                     this.$dropdown.find('ul>li:not(li'+this.options.noNavClassName+')').remove();
-
-                for (var j = 0; j < this.itemsLenth + 1; j++) {
-                    if (j < i) {
-                        this.$items.eq(j).show();
-                    } else {
-                        var v = i;
-                        if (i === this.itemsLenth) v = i - 1;
-                        for (; v < this.itemsLenth; v++) {
-                            if(this.flag)
-                                this.$dropdown.find("ul").append(this.$items.eq(v).prop("outerHTML"));
-                            else
-                                this.$dropdown.find('ul>li'+this.options.noNavClassName+':first')
-                                    .before(this.$items.eq(v).prop("outerHTML"));
-
-                            this.$items.eq(v).hide();
-                        }
-                        this.$dropdown.find("ul>li").show();
-                        break;
-                    }
                 }
+
+                callback(i);
 
                 if (panelIndex < i) {
                     this.$items.eq(panelIndex).addClass(activeClassName);
@@ -146,10 +170,9 @@
         },
         close: function () {
             var self = this;
-            // 标签可关闭项
-            this.$tabs.on('click', this.options.closeSelector, closeFun);
 
-            function closeFun(e) {
+            // 标签可关闭项
+            this.$tabs.on('click', this.options.closeSelector, function(e){
                 var $this = $(this),
                     $toggle = $this.closest('[data-toggle="tab"]'),
                     selector = $toggle.data('target'),
@@ -169,13 +192,25 @@
                 }
 
                 var $parent = $(selector);
-                if (e) e.preventDefault();
+                if (e) {
+                    e.preventDefault();
+                }
 
                 $parent.trigger(e = $.Event('close.bs.tab'));
 
-                if (e.isDefaultPrevented()) return;
+                if (e.isDefaultPrevented()) {
+                    return;
+                }
 
                 $parent.removeClass('in');
+
+                function refresh(){
+                    self.$dropdown.find("ul>li:first").remove();
+
+                    if(self.$dropdown.find('ul>li').length === 0) {
+                        self.$dropdown.remove();
+                    }
+                }
 
                 function removeElement() {
                     // detach from parent, fire event then clean up data
@@ -184,18 +219,13 @@
                     refresh();
                     self.init();
                 }
-                function refresh(){
-                    self.$dropdown.find("ul>li:first").remove();
-
-                    if(self.$dropdown.find('ul>li').length === 0); self.$dropdown.remove();
-                }
 
                 $.support.transition && $parent.hasClass('fade') ?
                     $parent
                         .one('bsTransitionEnd', removeElement)
                         .emulateTransitionEnd(150) :
-                    removeElement()
-            }
+                    removeElement();
+            });
         },
         throttle: function (fn, interval) {
             var _fn = fn,
@@ -207,7 +237,7 @@
 
                 if (firstTime) {
                     _fn.apply(_self, args);
-                    return firstTime = false;
+                    firstTime = false;
                 }
 
                 if (timer) {
@@ -219,7 +249,7 @@
                     timer = null;
                     _fn.apply(_self, args);
                 }, interval || 500);
-            }
+            };
         },
         bind: function () {
             var self = this;

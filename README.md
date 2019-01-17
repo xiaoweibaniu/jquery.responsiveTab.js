@@ -1,4 +1,5 @@
 ## jquery.responsiveTab.js
+version 2.0.1
 
 ### 依赖
 

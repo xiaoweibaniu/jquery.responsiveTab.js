@@ -1,3 +1,10 @@
-# responsive-tags
+## jquery.responsiveTab.js
 
-这是一个用于关于标签页的响应式操作插件
+### 依赖
+
+jquery >= v1.9.0
+bootstrap >= v3.0.0
+
+### 介绍
+
+  jquery.responsiveTab.js是基于Bootstrap的Tab模块实现，用于处理tab页适配不同视口的插件。在较小容器下，插件会帮您将不能显示的项收起到下拉列表中。
